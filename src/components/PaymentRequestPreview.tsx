@@ -33,6 +33,21 @@ function DetailLine({ label, value }: { label: string; value: string }) {
   );
 }
 
+function AlignedDetailLine({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <p className={value.trim() ? undefined : 'empty-detail'}>
+      <span>{label}</span>
+      {value.trim() || '\u00A0'}
+    </p>
+  );
+}
+
 function MultilineBlock({ title, value }: { title: string; value: string }) {
   if (!value.trim()) {
     return null;
@@ -81,19 +96,25 @@ export function PaymentRequestPreview({
         <section className="preview-party-grid">
           <div className="preview-party">
             <h3>請款方</h3>
-            <strong>{data.issuerName || '公司 / 個人名稱'}</strong>
-            <DetailLine label="統編" value={data.issuerTaxId} />
-            <DetailLine label="Email" value={data.issuerEmail} />
-            <DetailLine label="電話" value={data.issuerPhone} />
-            <DetailLine label="地址" value={data.issuerAddress} />
-            <DetailLine label="網站" value={data.issuerWebsite} />
+            <strong>{data.issuerCompany || data.issuerName || '請款方'}</strong>
+            <AlignedDetailLine label="聯絡人" value={data.issuerName} />
+            <AlignedDetailLine label="公司名稱" value={data.issuerCompany} />
+            <AlignedDetailLine label="統編" value={data.issuerTaxId} />
+            <AlignedDetailLine label="Email" value={data.issuerEmail} />
+            <AlignedDetailLine label="電話" value={data.issuerPhone} />
+            <AlignedDetailLine label="地址" value={data.issuerAddress} />
+            <AlignedDetailLine label="網站" value={data.issuerWebsite} />
           </div>
           <div className="preview-party">
             <h3>客戶</h3>
-            <strong>{data.clientName || '客戶名稱'}</strong>
-            <DetailLine label="公司" value={data.clientCompany} />
-            <DetailLine label="Email" value={data.clientEmail} />
-            <DetailLine label="電話" value={data.clientPhone} />
+            <strong>{data.clientCompany || data.clientName || '客戶'}</strong>
+            <AlignedDetailLine label="聯絡人" value={data.clientName} />
+            <AlignedDetailLine label="公司名稱" value={data.clientCompany} />
+            <AlignedDetailLine label="統編" value={data.clientTaxId} />
+            <AlignedDetailLine label="Email" value={data.clientEmail} />
+            <AlignedDetailLine label="電話" value={data.clientPhone} />
+            <AlignedDetailLine label="地址" value={data.clientAddress} />
+            <AlignedDetailLine label="網站" value={data.clientWebsite} />
           </div>
         </section>
 

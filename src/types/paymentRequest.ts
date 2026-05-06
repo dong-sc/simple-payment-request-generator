@@ -37,6 +37,7 @@ export interface PaymentRequestData {
   dueDays: number;
   currency: Currency;
   issuerName: string;
+  issuerCompany: string;
   issuerTaxId: string;
   issuerEmail: string;
   issuerPhone: string;
@@ -44,8 +45,11 @@ export interface PaymentRequestData {
   issuerWebsite: string;
   clientName: string;
   clientCompany: string;
+  clientTaxId: string;
   clientEmail: string;
   clientPhone: string;
+  clientAddress: string;
+  clientWebsite: string;
   items: PaymentItem[];
   discountAmount: number;
   taxRate: number;

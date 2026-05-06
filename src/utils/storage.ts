@@ -11,10 +11,16 @@ function normalizePaymentRequestData(value: unknown): PaymentRequestData {
   }
 
   const data = value as Partial<PaymentRequestData>;
+  const issuerCompany =
+    data.issuerCompany ??
+    (!data.issuerTaxId && !data.issuerEmail && !data.issuerPhone
+      ? (data.issuerName ?? '')
+      : '');
 
   return {
     ...fallback,
     ...data,
+    issuerCompany,
     items:
       Array.isArray(data.items) && data.items.length > 0
         ? data.items.map((item) => ({ ...fallback.items[0], ...item }))

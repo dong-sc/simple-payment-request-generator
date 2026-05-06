@@ -359,6 +359,10 @@ textarea:focus {
   margin: 6px 0 0;
 }
 
+.preview-party .empty-detail {
+  visibility: hidden;
+}
+
 .preview-meta span,
 .preview-party span,
 .payment-info-grid span {
