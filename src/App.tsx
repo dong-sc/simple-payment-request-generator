@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActionBar } from './components/ActionBar';
+import { AuthorPromoSection } from './components/AuthorPromoSection';
 import { Header } from './components/Header';
 import { PaymentRequestForm } from './components/PaymentRequestForm';
 import { PaymentRequestPreview } from './components/PaymentRequestPreview';
@@ -80,6 +81,7 @@ export default function App() {
           <PaymentRequestPreview data={paymentRequestData} totals={totals} />
         </section>
         <SupportSection />
+        <AuthorPromoSection />
       </main>
     </>
   );
