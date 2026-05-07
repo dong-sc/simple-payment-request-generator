@@ -112,5 +112,10 @@ base: "/"
 
 如果這個工具幫你省下一點時間，歡迎請我喝一杯珍奶，支持後續維護與更新。
 
-- BobaMe：placeholder
-- 預留連結：https://bobame.com/YOUR_ID
+- Give me a Boba：https://donglinphoto.bobaboba.me
+
+### 社群分享與贊助資訊
+
+網站底部已提供「分享這個工具」、「複製分享連結」與「Give me a Boba!」贊助按鈕。
+
+分享文案與贊助連結集中放在 `src/utils/projectLinks.ts`，可依專案語氣調整。

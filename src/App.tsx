@@ -3,6 +3,7 @@ import { ActionBar } from './components/ActionBar';
 import { Header } from './components/Header';
 import { PaymentRequestForm } from './components/PaymentRequestForm';
 import { PaymentRequestPreview } from './components/PaymentRequestPreview';
+import { SupportSection } from './components/SupportSection';
 import type { PaymentRequestData } from './types/paymentRequest';
 import { calculateTotals } from './utils/calculation';
 import {
@@ -78,6 +79,7 @@ export default function App() {
           </div>
           <PaymentRequestPreview data={paymentRequestData} totals={totals} />
         </section>
+        <SupportSection />
       </main>
     </>
   );
