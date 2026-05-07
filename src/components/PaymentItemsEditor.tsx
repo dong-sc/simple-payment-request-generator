@@ -3,7 +3,7 @@ import type {
   PaymentRequestData,
 } from '../types/paymentRequest';
 import { calculateItemSubtotal } from '../utils/calculation';
-import { clampNonNegative, formatCurrency } from '../utils/currency';
+import { formatCurrency, parseNumberInput } from '../utils/currency';
 import { createEmptyItem } from '../utils/defaultPaymentRequest';
 
 interface PaymentItemsEditorProps {
@@ -67,7 +67,7 @@ export function PaymentItemsEditor({ data, onChange }: PaymentItemsEditorProps) 
                   value={item.quantity}
                   onChange={(event) =>
                     updateItem(item.id, {
-                      quantity: clampNonNegative(event.target.value),
+                      quantity: parseNumberInput(event.target.value),
                     })
                   }
                 />
@@ -88,7 +88,7 @@ export function PaymentItemsEditor({ data, onChange }: PaymentItemsEditorProps) 
                   value={item.unitPrice}
                   onChange={(event) =>
                     updateItem(item.id, {
-                      unitPrice: clampNonNegative(event.target.value),
+                      unitPrice: parseNumberInput(event.target.value),
                     })
                   }
                 />

@@ -2,7 +2,7 @@ import type {
   PaymentRequestData,
   PaymentTotals,
 } from '../types/paymentRequest';
-import { formatCurrency } from '../utils/currency';
+import { clampNonNegative, formatCurrency } from '../utils/currency';
 
 interface TotalsSummaryProps {
   data: PaymentRequestData;
@@ -10,7 +10,8 @@ interface TotalsSummaryProps {
 }
 
 export function TotalsSummary({ data, totals }: TotalsSummaryProps) {
-  const taxLabel = data.taxRate > 0 ? `稅額（${data.taxRate}%）` : '稅額（未稅 / 免稅）';
+  const taxRate = clampNonNegative(data.taxRate);
+  const taxLabel = taxRate > 0 ? `稅額（${taxRate}%）` : '稅額（未稅 / 免稅）';
 
   return (
     <div className="totals-summary">

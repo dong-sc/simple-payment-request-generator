@@ -4,7 +4,7 @@ import type {
   PaymentTotals,
 } from '../types/paymentRequest';
 import { calculateItemSubtotal } from './calculation';
-import { formatCurrency } from './currency';
+import { clampNonNegative, formatCurrency } from './currency';
 import { addDays } from './date';
 
 const methodLabels: Record<PaymentInfo['method'], string> = {
@@ -32,8 +32,8 @@ export function generatePaymentRequestPlainText(
   totals: PaymentTotals,
 ): string {
   const dueDate = addDays(data.issueDate, data.dueDays);
-  const taxLabel =
-    data.taxRate > 0 ? `稅額（${data.taxRate}%）` : '稅額（未稅 / 免稅）';
+  const taxRate = clampNonNegative(data.taxRate);
+  const taxLabel = taxRate > 0 ? `稅額（${taxRate}%）` : '稅額（未稅 / 免稅）';
   const itemLines = data.items.map((item, index) => {
     const name = item.name.trim() || `品項 ${index + 1}`;
     const description = item.description.trim()

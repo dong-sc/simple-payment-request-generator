@@ -3,7 +3,7 @@ import type {
   PaymentRequestData,
   PaymentTotals,
 } from '../types/paymentRequest';
-import { clampNonNegative } from '../utils/currency';
+import { parseNumberInput } from '../utils/currency';
 
 interface TotalsEditorProps {
   data: PaymentRequestData;
@@ -25,7 +25,7 @@ export function TotalsEditor({ data, onChange, totals }: TotalsEditorProps) {
             onChange={(event) =>
               onChange({
                 ...data,
-                discountAmount: clampNonNegative(event.target.value),
+                discountAmount: parseNumberInput(event.target.value),
               })
             }
           />
@@ -37,7 +37,7 @@ export function TotalsEditor({ data, onChange, totals }: TotalsEditorProps) {
             type="number"
             value={data.taxRate}
             onChange={(event) =>
-              onChange({ ...data, taxRate: clampNonNegative(event.target.value) })
+              onChange({ ...data, taxRate: parseNumberInput(event.target.value) })
             }
           />
         </label>
@@ -50,7 +50,7 @@ export function TotalsEditor({ data, onChange, totals }: TotalsEditorProps) {
             onChange={(event) =>
               onChange({
                 ...data,
-                receivedAmount: clampNonNegative(event.target.value),
+                receivedAmount: parseNumberInput(event.target.value),
               })
             }
           />

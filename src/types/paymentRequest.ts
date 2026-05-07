@@ -1,4 +1,5 @@
 export type Currency = 'TWD' | 'USD' | 'JPY' | 'HKD' | 'CNY';
+export type NumericInputValue = number | '';
 
 export type PaymentMethod =
   | 'bank_transfer'
@@ -11,9 +12,9 @@ export interface PaymentItem {
   id: string;
   name: string;
   description: string;
-  quantity: number;
+  quantity: NumericInputValue;
   unit: string;
-  unitPrice: number;
+  unitPrice: NumericInputValue;
 }
 
 export interface PaymentInfo {
@@ -34,7 +35,7 @@ export interface PaymentRequestData {
   relatedQuoteNumber: string;
   projectName: string;
   issueDate: string;
-  dueDays: number;
+  dueDays: NumericInputValue;
   currency: Currency;
   issuerName: string;
   issuerCompany: string;
@@ -51,9 +52,9 @@ export interface PaymentRequestData {
   clientAddress: string;
   clientWebsite: string;
   items: PaymentItem[];
-  discountAmount: number;
-  taxRate: number;
-  receivedAmount: number;
+  discountAmount: NumericInputValue;
+  taxRate: NumericInputValue;
+  receivedAmount: NumericInputValue;
   paymentInfo: PaymentInfo;
   requestNotes: string;
   paymentTerms: string;

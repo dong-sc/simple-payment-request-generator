@@ -9,7 +9,7 @@ import type {
   PaymentRequestData,
   PaymentTotals,
 } from '../types/paymentRequest';
-import { clampNonNegative } from '../utils/currency';
+import { parseNumberInput } from '../utils/currency';
 
 interface PaymentRequestFormProps {
   data: PaymentRequestData;
@@ -66,7 +66,7 @@ export function PaymentRequestForm({
               type="number"
               value={data.dueDays}
               onChange={(event) =>
-                update('dueDays', clampNonNegative(event.target.value))
+                update('dueDays', parseNumberInput(event.target.value))
               }
             />
           </label>

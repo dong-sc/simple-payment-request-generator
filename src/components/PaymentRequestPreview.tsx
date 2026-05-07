@@ -4,7 +4,7 @@ import type {
   PaymentTotals,
 } from '../types/paymentRequest';
 import { calculateItemSubtotal } from '../utils/calculation';
-import { formatCurrency } from '../utils/currency';
+import { clampNonNegative, formatCurrency } from '../utils/currency';
 import { addDays } from '../utils/date';
 
 interface PaymentRequestPreviewProps {
@@ -74,7 +74,8 @@ export function PaymentRequestPreview({
   totals,
 }: PaymentRequestPreviewProps) {
   const dueDate = addDays(data.issueDate, data.dueDays);
-  const taxLabel = data.taxRate > 0 ? `稅額（${data.taxRate}%）` : '稅額（未稅 / 免稅）';
+  const taxRate = clampNonNegative(data.taxRate);
+  const taxLabel = taxRate > 0 ? `稅額（${taxRate}%）` : '稅額（未稅 / 免稅）';
 
   return (
     <aside className="preview-pane" aria-label="請款單預覽">
