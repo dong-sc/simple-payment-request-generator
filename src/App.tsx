@@ -7,6 +7,7 @@ import { PaymentRequestPreview } from './components/PaymentRequestPreview';
 import { SupportSection } from './components/SupportSection';
 import type { PaymentRequestData } from './types/paymentRequest';
 import { calculateTotals } from './utils/calculation';
+import { exportPaymentRequestExcel } from './utils/exportPaymentRequestExcel';
 import {
   clearPaymentRequestData,
   loadPaymentRequestData,
@@ -46,6 +47,17 @@ export default function App() {
     window.setTimeout(() => setCopyMessage(''), 2200);
   }
 
+  async function handleExportExcel() {
+    try {
+      await exportPaymentRequestExcel(paymentRequestData, totals);
+      setCopyMessage('已匯出 Excel 資料表');
+      window.setTimeout(() => setCopyMessage(''), 2200);
+    } catch {
+      setCopyMessage('匯出 Excel 失敗，請稍後再試');
+      window.setTimeout(() => setCopyMessage(''), 2200);
+    }
+  }
+
   function handlePrint() {
     const originalTitle = document.title;
     document.title = getPrintableTitle(paymentRequestData.title);
@@ -70,6 +82,7 @@ export default function App() {
               copyMessage={copyMessage}
               onClear={handleClear}
               onCopyText={handleCopyText}
+              onExportExcel={handleExportExcel}
               onPrint={handlePrint}
             />
             <PaymentRequestForm
