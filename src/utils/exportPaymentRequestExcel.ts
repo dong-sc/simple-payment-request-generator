@@ -1,4 +1,3 @@
-import type { WorkBook } from 'xlsx';
 import type {
   PaymentInfo,
   PaymentRequestData,
@@ -9,7 +8,6 @@ import { clampNonNegative, formatCurrency } from './currency';
 import { addDays } from './date';
 
 type CellValue = string | number;
-type XlsxModule = typeof import('xlsx');
 
 const methodLabels: Record<PaymentInfo['method'], string> = {
   bank_transfer: '銀行轉帳',
@@ -35,16 +33,6 @@ function getPaymentMethodLabel(paymentInfo: PaymentInfo): string {
   return methodLabels[paymentInfo.method];
 }
 
-function appendSheet(
-  XLSX: XlsxModule,
-  workbook: WorkBook,
-  name: string,
-  rows: CellValue[][],
-): void {
-  const worksheet = XLSX.utils.aoa_to_sheet(rows);
-  XLSX.utils.book_append_sheet(workbook, worksheet, name);
-}
-
 function fieldRows(title: string, rows: CellValue[][]): CellValue[][] {
   return [[title, ''], ...rows, ['', '']];
 }
@@ -68,7 +56,8 @@ export async function exportPaymentRequestExcel(
   const dueDate = addDays(data.issueDate, data.dueDays);
   const taxRate = clampNonNegative(data.taxRate);
 
-  appendSheet(XLSX, workbook, '請款資訊', [
+  const rows: CellValue[][] = [
+    ['請款資訊', ''],
     ['欄位', '內容'],
     ['請款單標題', cleanText(data.title)],
     ['請款單編號', cleanText(data.requestNumber)],
@@ -96,9 +85,7 @@ export async function exportPaymentRequestExcel(
       ['地址', cleanText(data.clientAddress)],
       ['網站', cleanText(data.clientWebsite)],
     ]),
-  ]);
-
-  appendSheet(XLSX, workbook, '請款項目', [
+    ['請款項目', ''],
     ['序號', '品項名稱', '說明', '數量', '單位', '單價', '小計'],
     ...data.items.map((item, index) => [
       index + 1,
@@ -109,9 +96,8 @@ export async function exportPaymentRequestExcel(
       formatCurrency(item.unitPrice, data.currency),
       formatCurrency(calculateItemSubtotal(item), data.currency),
     ]),
-  ]);
-
-  appendSheet(XLSX, workbook, '金額摘要', [
+    ['', ''],
+    ['金額摘要', ''],
     ['欄位', '金額 / 內容'],
     ['請款項目小計', formatCurrency(totals.itemsSubtotal, data.currency)],
     ['折扣', formatCurrency(totals.discountAmount, data.currency)],
@@ -121,9 +107,8 @@ export async function exportPaymentRequestExcel(
     ['本次請款金額', formatCurrency(totals.requestTotal, data.currency)],
     ['已收訂金 / 已收款項', formatCurrency(totals.receivedAmount, data.currency)],
     ['尚待支付金額', formatCurrency(totals.remainingAmount, data.currency)],
-  ]);
-
-  appendSheet(XLSX, workbook, '付款資訊', [
+    ['', ''],
+    ['付款資訊', ''],
     ['欄位', '內容'],
     ['付款方式', getPaymentMethodLabel(data.paymentInfo)],
     ['銀行名稱', cleanText(data.paymentInfo.bankName)],
@@ -133,14 +118,16 @@ export async function exportPaymentRequestExcel(
     ['戶名', cleanText(data.paymentInfo.accountName)],
     ['付款備註', cleanText(data.paymentInfo.paymentNote)],
     ['匯款後回覆方式', cleanText(data.paymentInfo.confirmationInstruction)],
-  ]);
-
-  appendSheet(XLSX, workbook, '備註與條款', [
+    ['', ''],
+    ['備註與條款', ''],
     ['欄位', '內容'],
     ['請款備註', cleanText(data.requestNotes)],
     ['付款條款', cleanText(data.paymentTerms)],
     ['交付說明', cleanText(data.deliveryNotes)],
-  ]);
+  ];
+
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(workbook, worksheet, '請款單資料');
 
   XLSX.writeFile(workbook, getExportFileName(data), { compression: true });
 }
