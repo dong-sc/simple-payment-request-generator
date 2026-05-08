@@ -67,7 +67,18 @@ function pushSectionTitle(
     rows.push([]);
   }
 
-  pushMergedRow(rows, merges, [title], 6);
+  pushMergedRow(rows, merges, [title], 7);
+}
+
+function pushWideRow(
+  rows: CellValue[][],
+  merges: MergeRange[],
+  label: string,
+  value: CellValue,
+): void {
+  const rowIndex = rows.length;
+  rows.push([label, value, '', '', '', '', '', '']);
+  merges.push({ s: { r: rowIndex, c: 1 }, e: { r: rowIndex, c: 7 } });
 }
 
 function pushPartyInfo(
@@ -77,15 +88,15 @@ function pushPartyInfo(
   rightRows: CellValue[][],
 ): void {
   const headingRowIndex = rows.length;
-  rows.push(['請款方資訊', '', '', '客戶資訊', '', '', '']);
-  merges.push({ s: { r: headingRowIndex, c: 0 }, e: { r: headingRowIndex, c: 2 } });
-  merges.push({ s: { r: headingRowIndex, c: 3 }, e: { r: headingRowIndex, c: 6 } });
+  rows.push(['請款方資訊', '', '', '', '客戶資訊', '', '', '']);
+  merges.push({ s: { r: headingRowIndex, c: 0 }, e: { r: headingRowIndex, c: 3 } });
+  merges.push({ s: { r: headingRowIndex, c: 4 }, e: { r: headingRowIndex, c: 7 } });
 
   const rowCount = Math.max(leftRows.length, rightRows.length);
   for (let index = 0; index < rowCount; index += 1) {
     const leftRow = leftRows[index] ?? ['', ''];
     const rightRow = rightRows[index] ?? ['', ''];
-    rows.push([leftRow[0], leftRow[1], '', rightRow[0], rightRow[1], '', '']);
+    rows.push([leftRow[0], leftRow[1], '', '', rightRow[0], rightRow[1], '', '']);
   }
 }
 
@@ -101,17 +112,31 @@ export async function exportPaymentRequestExcel(
   const rows: CellValue[][] = [];
   const merges: MergeRange[] = [];
 
-  pushMergedRow(rows, merges, [cleanText(data.title) || '請款單'], 6);
-  rows.push(['匯出類型', 'Excel 資料表', '', '匯出日期', new Date().toISOString().slice(0, 10)]);
+  pushMergedRow(rows, merges, [cleanText(data.title) || '請款單'], 7);
+  rows.push([
+    '文件類型',
+    '請款單',
+    '',
+    '請款單編號',
+    cleanText(data.requestNumber),
+    '請款日期',
+    cleanText(data.issueDate),
+    '',
+  ]);
+  rows.push([
+    '幣別',
+    data.currency,
+    '',
+    '付款期限',
+    dueDate,
+    '匯出日期',
+    new Date().toISOString().slice(0, 10),
+    '',
+  ]);
   pushSectionTitle(rows, merges, '請款資訊');
   rows.push(
-    ['請款單標題', cleanText(data.title)],
-    ['請款單編號', cleanText(data.requestNumber)],
-    ['對應報價單編號', cleanText(data.relatedQuoteNumber)],
-    ['專案名稱', cleanText(data.projectName)],
-    ['請款日期', cleanText(data.issueDate)],
-    ['付款期限', `${data.dueDays || 0} 天（至 ${dueDate}）`],
-    ['幣別', data.currency],
+    ['請款單標題', cleanText(data.title), '', '', '付款期限天數', `${data.dueDays || 0} 天`, '', ''],
+    ['對應報價單編號', cleanText(data.relatedQuoteNumber), '', '', '專案名稱', cleanText(data.projectName), '', ''],
   );
   rows.push([]);
   pushPartyInfo(
@@ -139,7 +164,7 @@ export async function exportPaymentRequestExcel(
 
   pushSectionTitle(rows, merges, '請款項目');
   rows.push(
-    ['序號', '品項名稱', '說明', '數量', '單位', '單價', '小計'],
+    ['序號', '品項名稱', '說明', '數量', '單位', '單價', '小計', '備註'],
     ...data.items.map((item, index) => [
       index + 1,
       cleanText(item.name),
@@ -148,52 +173,53 @@ export async function exportPaymentRequestExcel(
       cleanText(item.unit),
       formatCurrency(item.unitPrice, data.currency),
       formatCurrency(calculateItemSubtotal(item), data.currency),
+      '',
     ]),
   );
 
   pushSectionTitle(rows, merges, '金額摘要');
   rows.push(
-    ['欄位', '金額 / 內容'],
-    ['請款項目小計', formatCurrency(totals.itemsSubtotal, data.currency)],
-    ['折扣', formatCurrency(totals.discountAmount, data.currency)],
-    ['折扣後金額', formatCurrency(totals.taxableAmount, data.currency)],
-    ['稅率', `${taxRate}%`],
-    ['稅額', formatCurrency(totals.taxAmount, data.currency)],
-    ['本次請款金額', formatCurrency(totals.requestTotal, data.currency)],
-    ['已收訂金 / 已收款項', formatCurrency(totals.receivedAmount, data.currency)],
-    ['尚待支付金額', formatCurrency(totals.remainingAmount, data.currency)],
+    ['', '', '', '', '欄位', '', '金額 / 內容', ''],
+    ['', '', '', '', '請款項目小計', '', formatCurrency(totals.itemsSubtotal, data.currency), ''],
+    ['', '', '', '', '折扣', '', formatCurrency(totals.discountAmount, data.currency), ''],
+    ['', '', '', '', '折扣後金額', '', formatCurrency(totals.taxableAmount, data.currency), ''],
+    ['', '', '', '', '稅率', '', `${taxRate}%`, ''],
+    ['', '', '', '', '稅額', '', formatCurrency(totals.taxAmount, data.currency), ''],
+    ['', '', '', '', '本次請款金額', '', formatCurrency(totals.requestTotal, data.currency), ''],
+    ['', '', '', '', '已收訂金 / 已收款項', '', formatCurrency(totals.receivedAmount, data.currency), ''],
+    ['', '', '', '', '尚待支付金額', '', formatCurrency(totals.remainingAmount, data.currency), ''],
   );
 
   pushSectionTitle(rows, merges, '付款資訊');
-  rows.push(
-    ['欄位', '內容'],
-    ['付款方式', getPaymentMethodLabel(data.paymentInfo)],
-    ['銀行名稱', cleanText(data.paymentInfo.bankName)],
-    ['分行名稱', cleanText(data.paymentInfo.branchName)],
-    ['銀行代碼', cleanText(data.paymentInfo.bankCode)],
-    ['帳號', cleanText(data.paymentInfo.accountNumber)],
-    ['戶名', cleanText(data.paymentInfo.accountName)],
-    ['付款備註', cleanText(data.paymentInfo.paymentNote)],
-    ['匯款後回覆方式', cleanText(data.paymentInfo.confirmationInstruction)],
+  pushWideRow(rows, merges, '付款方式', getPaymentMethodLabel(data.paymentInfo));
+  pushWideRow(rows, merges, '銀行名稱', cleanText(data.paymentInfo.bankName));
+  pushWideRow(rows, merges, '分行名稱', cleanText(data.paymentInfo.branchName));
+  pushWideRow(rows, merges, '銀行代碼', cleanText(data.paymentInfo.bankCode));
+  pushWideRow(rows, merges, '帳號', cleanText(data.paymentInfo.accountNumber));
+  pushWideRow(rows, merges, '戶名', cleanText(data.paymentInfo.accountName));
+  pushWideRow(rows, merges, '付款備註', cleanText(data.paymentInfo.paymentNote));
+  pushWideRow(
+    rows,
+    merges,
+    '匯款後回覆方式',
+    cleanText(data.paymentInfo.confirmationInstruction),
   );
 
   pushSectionTitle(rows, merges, '備註與條款');
-  rows.push(
-    ['欄位', '內容'],
-    ['請款備註', cleanText(data.requestNotes)],
-    ['付款條款', cleanText(data.paymentTerms)],
-    ['交付說明', cleanText(data.deliveryNotes)],
-  );
+  pushWideRow(rows, merges, '請款備註', cleanText(data.requestNotes));
+  pushWideRow(rows, merges, '付款條款', cleanText(data.paymentTerms));
+  pushWideRow(rows, merges, '交付說明', cleanText(data.deliveryNotes));
 
   const worksheet = XLSX.utils.aoa_to_sheet(rows);
   worksheet['!cols'] = [
-    { wch: 18 },
-    { wch: 28 },
-    { wch: 4 },
-    { wch: 18 },
-    { wch: 28 },
+    { wch: 14 },
+    { wch: 24 },
+    { wch: 30 },
+    { wch: 10 },
+    { wch: 12 },
     { wch: 16 },
     { wch: 18 },
+    { wch: 12 },
   ];
   worksheet['!merges'] = merges;
   XLSX.utils.book_append_sheet(workbook, worksheet, '請款單資料');
