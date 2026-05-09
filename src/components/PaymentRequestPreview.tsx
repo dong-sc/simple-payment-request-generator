@@ -97,6 +97,11 @@ export function PaymentRequestPreview({
         <section className="preview-party-grid">
           <div className="preview-party">
             <h3>請款方</h3>
+            <div className="preview-logo-box">
+              {data.issuerLogoImage ? (
+                <img src={data.issuerLogoImage} alt="請款方 Logo" />
+              ) : null}
+            </div>
             <strong>{data.issuerCompany || data.issuerName || '請款方'}</strong>
             <AlignedDetailLine label="聯絡人" value={data.issuerName} />
             <AlignedDetailLine label="公司名稱" value={data.issuerCompany} />

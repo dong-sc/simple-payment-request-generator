@@ -44,6 +44,7 @@ export interface PaymentRequestData {
   issuerPhone: string;
   issuerAddress: string;
   issuerWebsite: string;
+  issuerLogoImage: string;
   clientName: string;
   clientCompany: string;
   clientTaxId: string;

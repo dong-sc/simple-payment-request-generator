@@ -36,6 +36,7 @@ export function createDefaultPaymentRequestData(): PaymentRequestData {
     issuerPhone: '',
     issuerAddress: '',
     issuerWebsite: '',
+    issuerLogoImage: '',
     clientName: '',
     clientCompany: '',
     clientTaxId: '',

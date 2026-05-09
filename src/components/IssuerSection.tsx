@@ -5,12 +5,62 @@ interface IssuerSectionProps {
   onChange: (data: PaymentRequestData) => void;
 }
 
+const logoImageMaxWidth = 720;
+const logoImageMaxHeight = 360;
+
+function resizeLogoImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => {
+        const scale = Math.min(
+          1,
+          logoImageMaxWidth / image.width,
+          logoImageMaxHeight / image.height,
+        );
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+
+        const context = canvas.getContext('2d');
+        if (!context) {
+          reject(new Error('Canvas is not supported.'));
+          return;
+        }
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      image.onerror = () => reject(new Error('Unable to load image.'));
+      image.src = String(reader.result || '');
+    };
+
+    reader.onerror = () => reject(new Error('Unable to read file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function IssuerSection({ data, onChange }: IssuerSectionProps) {
   function update<K extends keyof PaymentRequestData>(
     key: K,
     value: PaymentRequestData[K],
   ) {
     onChange({ ...data, [key]: value });
+  }
+
+  async function handleLogoUpload(file: File | null) {
+    if (!file) {
+      return;
+    }
+
+    try {
+      update('issuerLogoImage', await resizeLogoImage(file));
+    } catch {
+      update('issuerLogoImage', '');
+    }
   }
 
   return (
@@ -72,6 +122,34 @@ export function IssuerSection({ data, onChange }: IssuerSectionProps) {
             placeholder="可留空"
           />
         </label>
+        <div className="image-upload-card span-two">
+          <label>
+            請款方 Logo
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(event) =>
+                void handleLogoUpload(event.currentTarget.files?.[0] ?? null)
+              }
+            />
+          </label>
+          <p className="upload-note">建議使用橫式或透明背景 Logo，系統會限制在預覽格內。</p>
+          <div className="logo-upload-preview" aria-label="請款方 Logo 預覽">
+            {data.issuerLogoImage ? (
+              <img src={data.issuerLogoImage} alt="請款方 Logo" />
+            ) : (
+              <span>尚未上傳</span>
+            )}
+          </div>
+          <button
+            className="text-button danger"
+            type="button"
+            disabled={!data.issuerLogoImage}
+            onClick={() => update('issuerLogoImage', '')}
+          >
+            移除 Logo
+          </button>
+        </div>
       </div>
     </section>
   );
