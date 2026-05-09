@@ -6,6 +6,7 @@ import type {
 import { calculateItemSubtotal } from '../utils/calculation';
 import { clampNonNegative, formatCurrency } from '../utils/currency';
 import { addDays } from '../utils/date';
+import { formatPaymentItemName, getGroupedPaymentItems } from '../utils/items';
 
 interface PaymentRequestPreviewProps {
   data: PaymentRequestData;
@@ -76,6 +77,7 @@ export function PaymentRequestPreview({
   const dueDate = addDays(data.issueDate, data.dueDays);
   const taxRate = clampNonNegative(data.taxRate);
   const taxLabel = taxRate > 0 ? `稅額（${taxRate}%）` : '稅額（未稅 / 免稅）';
+  const displayItems = getGroupedPaymentItems(data.items);
 
   return (
     <aside className="preview-pane" aria-label="請款單預覽">
@@ -141,9 +143,9 @@ export function PaymentRequestPreview({
                 </tr>
               </thead>
               <tbody>
-                {data.items.map((item, index) => (
+                {displayItems.map(({ item, originalIndex }) => (
                   <tr key={item.id}>
-                    <td>{item.name || `品項 ${index + 1}`}</td>
+                    <td>{formatPaymentItemName(item, originalIndex)}</td>
                     <td>{item.description || '-'}</td>
                     <td className="number-cell">{item.quantity || 0}</td>
                     <td>{item.unit || '-'}</td>

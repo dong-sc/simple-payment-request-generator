@@ -12,6 +12,7 @@ export const paymentTextTemplates = [
 export function createEmptyItem(): PaymentItem {
   return {
     id: crypto.randomUUID(),
+    category: '',
     name: '',
     description: '',
     quantity: 1,

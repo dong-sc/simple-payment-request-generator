@@ -6,6 +6,7 @@ import type {
 import { calculateItemSubtotal } from './calculation';
 import { clampNonNegative, formatCurrency } from './currency';
 import { addDays } from './date';
+import { formatPaymentItemName, getGroupedPaymentItems } from './items';
 
 const methodLabels: Record<PaymentInfo['method'], string> = {
   bank_transfer: '銀行轉帳',
@@ -34,19 +35,21 @@ export function generatePaymentRequestPlainText(
   const dueDate = addDays(data.issueDate, data.dueDays);
   const taxRate = clampNonNegative(data.taxRate);
   const taxLabel = taxRate > 0 ? `稅額（${taxRate}%）` : '稅額（未稅 / 免稅）';
-  const itemLines = data.items.map((item, index) => {
-    const name = item.name.trim() || `品項 ${index + 1}`;
+  const itemLines = getGroupedPaymentItems(data.items).map(
+    ({ item, originalIndex }, index) => {
+      const name = formatPaymentItemName(item, originalIndex);
     const description = item.description.trim()
       ? `，說明：${item.description.trim()}`
       : '';
 
-    return `${index + 1}. ${name}${description}，數量：${item.quantity || 0} ${
-      item.unit || ''
-    }，單價：${formatCurrency(item.unitPrice || 0, data.currency)}，小計：${formatCurrency(
-      calculateItemSubtotal(item),
-      data.currency,
-    )}`;
-  });
+      return `${index + 1}. ${name}${description}，數量：${item.quantity || 0} ${
+        item.unit || ''
+      }，單價：${formatCurrency(
+        item.unitPrice || 0,
+        data.currency,
+      )}，小計：${formatCurrency(calculateItemSubtotal(item), data.currency)}`;
+    },
+  );
 
   return [
     data.title,

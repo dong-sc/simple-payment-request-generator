@@ -10,6 +10,7 @@ export type PaymentMethod =
 
 export interface PaymentItem {
   id: string;
+  category: string;
   name: string;
   description: string;
   quantity: NumericInputValue;

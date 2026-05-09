@@ -6,6 +6,7 @@ import type {
 import { calculateItemSubtotal } from './calculation';
 import { clampNonNegative, formatCurrency } from './currency';
 import { addDays } from './date';
+import { formatPaymentItemName, getGroupedPaymentItems } from './items';
 
 type CellValue = string | number;
 type MergeRange = {
@@ -165,9 +166,9 @@ export async function exportPaymentRequestExcel(
   pushSectionTitle(rows, merges, '請款項目');
   rows.push(
     ['序號', '品項名稱', '說明', '數量', '單位', '單價', '小計', '備註'],
-    ...data.items.map((item, index) => [
+    ...getGroupedPaymentItems(data.items).map(({ item, originalIndex }, index) => [
       index + 1,
-      cleanText(item.name),
+      formatPaymentItemName(item, originalIndex),
       cleanText(item.description),
       clampNonNegative(item.quantity),
       cleanText(item.unit),
