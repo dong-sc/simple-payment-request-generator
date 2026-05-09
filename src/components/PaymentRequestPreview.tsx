@@ -6,7 +6,11 @@ import type {
 import { calculateItemSubtotal } from '../utils/calculation';
 import { clampNonNegative, formatCurrency } from '../utils/currency';
 import { addDays } from '../utils/date';
-import { formatPaymentItemName, getGroupedPaymentItems } from '../utils/items';
+import {
+  formatPaymentItemCategory,
+  formatPaymentItemName,
+  getGroupedPaymentItems,
+} from '../utils/items';
 
 interface PaymentRequestPreviewProps {
   data: PaymentRequestData;
@@ -134,6 +138,7 @@ export function PaymentRequestPreview({
             <table className="preview-table">
               <thead>
                 <tr>
+                  <th>類別</th>
                   <th>品項</th>
                   <th>說明</th>
                   <th className="number-cell">數量</th>
@@ -145,6 +150,7 @@ export function PaymentRequestPreview({
               <tbody>
                 {displayItems.map(({ item, originalIndex }) => (
                   <tr key={item.id}>
+                    <td>{formatPaymentItemCategory(item) || '-'}</td>
                     <td>{formatPaymentItemName(item, originalIndex)}</td>
                     <td>{item.description || '-'}</td>
                     <td className="number-cell">{item.quantity || 0}</td>

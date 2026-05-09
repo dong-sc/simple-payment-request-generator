@@ -6,7 +6,11 @@ import type {
 import { calculateItemSubtotal } from './calculation';
 import { clampNonNegative, formatCurrency } from './currency';
 import { addDays } from './date';
-import { formatPaymentItemName, getGroupedPaymentItems } from './items';
+import {
+  formatPaymentItemCategory,
+  formatPaymentItemName,
+  getGroupedPaymentItems,
+} from './items';
 
 const methodLabels: Record<PaymentInfo['method'], string> = {
   bank_transfer: '銀行轉帳',
@@ -38,11 +42,14 @@ export function generatePaymentRequestPlainText(
   const itemLines = getGroupedPaymentItems(data.items).map(
     ({ item, originalIndex }, index) => {
       const name = formatPaymentItemName(item, originalIndex);
+      const category = formatPaymentItemCategory(item)
+        ? `類別：${formatPaymentItemCategory(item)}，`
+        : '';
     const description = item.description.trim()
       ? `，說明：${item.description.trim()}`
       : '';
 
-      return `${index + 1}. ${name}${description}，數量：${item.quantity || 0} ${
+      return `${index + 1}. ${category}品項：${name}${description}，數量：${item.quantity || 0} ${
         item.unit || ''
       }，單價：${formatCurrency(
         item.unitPrice || 0,

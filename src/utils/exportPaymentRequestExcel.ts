@@ -6,7 +6,11 @@ import type {
 import { calculateItemSubtotal } from './calculation';
 import { clampNonNegative, formatCurrency } from './currency';
 import { addDays } from './date';
-import { formatPaymentItemName, getGroupedPaymentItems } from './items';
+import {
+  formatPaymentItemCategory,
+  formatPaymentItemName,
+  getGroupedPaymentItems,
+} from './items';
 
 type CellValue = string | number;
 type MergeRange = {
@@ -68,7 +72,7 @@ function pushSectionTitle(
     rows.push([]);
   }
 
-  pushMergedRow(rows, merges, [title], 7);
+  pushMergedRow(rows, merges, [title], 8);
 }
 
 function pushWideRow(
@@ -78,8 +82,8 @@ function pushWideRow(
   value: CellValue,
 ): void {
   const rowIndex = rows.length;
-  rows.push([label, value, '', '', '', '', '', '']);
-  merges.push({ s: { r: rowIndex, c: 1 }, e: { r: rowIndex, c: 7 } });
+  rows.push([label, value, '', '', '', '', '', '', '']);
+  merges.push({ s: { r: rowIndex, c: 1 }, e: { r: rowIndex, c: 8 } });
 }
 
 function pushPartyInfo(
@@ -89,7 +93,7 @@ function pushPartyInfo(
   rightRows: CellValue[][],
 ): void {
   const headingRowIndex = rows.length;
-  rows.push(['請款方資訊', '', '', '', '客戶資訊', '', '', '']);
+  rows.push(['請款方資訊', '', '', '', '客戶資訊', '', '', '', '']);
   merges.push({ s: { r: headingRowIndex, c: 0 }, e: { r: headingRowIndex, c: 3 } });
   merges.push({ s: { r: headingRowIndex, c: 4 }, e: { r: headingRowIndex, c: 7 } });
 
@@ -97,7 +101,7 @@ function pushPartyInfo(
   for (let index = 0; index < rowCount; index += 1) {
     const leftRow = leftRows[index] ?? ['', ''];
     const rightRow = rightRows[index] ?? ['', ''];
-    rows.push([leftRow[0], leftRow[1], '', '', rightRow[0], rightRow[1], '', '']);
+    rows.push([leftRow[0], leftRow[1], '', '', rightRow[0], rightRow[1], '', '', '']);
   }
 }
 
@@ -113,7 +117,7 @@ export async function exportPaymentRequestExcel(
   const rows: CellValue[][] = [];
   const merges: MergeRange[] = [];
 
-  pushMergedRow(rows, merges, [cleanText(data.title) || '請款單'], 7);
+  pushMergedRow(rows, merges, [cleanText(data.title) || '請款單'], 8);
   rows.push([
     '文件類型',
     '請款單',
@@ -122,6 +126,7 @@ export async function exportPaymentRequestExcel(
     cleanText(data.requestNumber),
     '請款日期',
     cleanText(data.issueDate),
+    '',
     '',
   ]);
   rows.push([
@@ -133,11 +138,12 @@ export async function exportPaymentRequestExcel(
     '匯出日期',
     new Date().toISOString().slice(0, 10),
     '',
+    '',
   ]);
   pushSectionTitle(rows, merges, '請款資訊');
   rows.push(
-    ['請款單標題', cleanText(data.title), '', '', '付款期限天數', `${data.dueDays || 0} 天`, '', ''],
-    ['對應報價單編號', cleanText(data.relatedQuoteNumber), '', '', '專案名稱', cleanText(data.projectName), '', ''],
+    ['請款單標題', cleanText(data.title), '', '', '付款期限天數', `${data.dueDays || 0} 天`, '', '', ''],
+    ['對應報價單編號', cleanText(data.relatedQuoteNumber), '', '', '專案名稱', cleanText(data.projectName), '', '', ''],
   );
   rows.push([]);
   pushPartyInfo(
@@ -165,9 +171,10 @@ export async function exportPaymentRequestExcel(
 
   pushSectionTitle(rows, merges, '請款項目');
   rows.push(
-    ['序號', '品項名稱', '說明', '數量', '單位', '單價', '小計', '備註'],
+    ['序號', '類別', '品項名稱', '說明', '數量', '單位', '單價', '小計', '備註'],
     ...getGroupedPaymentItems(data.items).map(({ item, originalIndex }, index) => [
       index + 1,
+      formatPaymentItemCategory(item),
       formatPaymentItemName(item, originalIndex),
       cleanText(item.description),
       clampNonNegative(item.quantity),
@@ -180,15 +187,15 @@ export async function exportPaymentRequestExcel(
 
   pushSectionTitle(rows, merges, '金額摘要');
   rows.push(
-    ['', '', '', '', '欄位', '', '金額 / 內容', ''],
-    ['', '', '', '', '請款項目小計', '', formatCurrency(totals.itemsSubtotal, data.currency), ''],
-    ['', '', '', '', '折扣', '', formatCurrency(totals.discountAmount, data.currency), ''],
-    ['', '', '', '', '折扣後金額', '', formatCurrency(totals.taxableAmount, data.currency), ''],
-    ['', '', '', '', '稅率', '', `${taxRate}%`, ''],
-    ['', '', '', '', '稅額', '', formatCurrency(totals.taxAmount, data.currency), ''],
-    ['', '', '', '', '本次請款金額', '', formatCurrency(totals.requestTotal, data.currency), ''],
-    ['', '', '', '', '已收訂金 / 已收款項', '', formatCurrency(totals.receivedAmount, data.currency), ''],
-    ['', '', '', '', '尚待支付金額', '', formatCurrency(totals.remainingAmount, data.currency), ''],
+    ['', '', '', '', '欄位', '', '金額 / 內容', '', ''],
+    ['', '', '', '', '請款項目小計', '', formatCurrency(totals.itemsSubtotal, data.currency), '', ''],
+    ['', '', '', '', '折扣', '', formatCurrency(totals.discountAmount, data.currency), '', ''],
+    ['', '', '', '', '折扣後金額', '', formatCurrency(totals.taxableAmount, data.currency), '', ''],
+    ['', '', '', '', '稅率', '', `${taxRate}%`, '', ''],
+    ['', '', '', '', '稅額', '', formatCurrency(totals.taxAmount, data.currency), '', ''],
+    ['', '', '', '', '本次請款金額', '', formatCurrency(totals.requestTotal, data.currency), '', ''],
+    ['', '', '', '', '已收訂金 / 已收款項', '', formatCurrency(totals.receivedAmount, data.currency), '', ''],
+    ['', '', '', '', '尚待支付金額', '', formatCurrency(totals.remainingAmount, data.currency), '', ''],
   );
 
   pushSectionTitle(rows, merges, '付款資訊');
@@ -214,6 +221,7 @@ export async function exportPaymentRequestExcel(
   const worksheet = XLSX.utils.aoa_to_sheet(rows);
   worksheet['!cols'] = [
     { wch: 14 },
+    { wch: 16 },
     { wch: 24 },
     { wch: 30 },
     { wch: 10 },
