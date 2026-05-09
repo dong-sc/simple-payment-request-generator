@@ -70,6 +70,10 @@
     border-bottom-width: 1.5pt;
   }
 
+  .preview-header-side {
+    gap: 3mm;
+  }
+
   .preview-party-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -83,8 +87,8 @@
   }
 
   .preview-logo-box {
+    width: 38mm;
     height: 16mm;
-    margin-bottom: 2.5mm;
   }
 
   .preview-block {

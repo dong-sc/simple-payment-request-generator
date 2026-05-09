@@ -85,23 +85,24 @@ export function PaymentRequestPreview({
             <p className="preview-label">Payment Request</p>
             <h2>{data.title || '請款單'}</h2>
           </div>
-          <div className="preview-meta">
-            <DetailLine label="編號" value={data.requestNumber} />
-            <DetailLine label="報價單" value={data.relatedQuoteNumber} />
-            <DetailLine label="專案" value={data.projectName} />
-            <DetailLine label="請款日" value={data.issueDate} />
-            <DetailLine label="付款期限" value={dueDate} />
+          <div className="preview-header-side">
+            {data.issuerLogoImage ? (
+              <div className="preview-logo-box">
+                <img src={data.issuerLogoImage} alt="Logo" />
+              </div>
+            ) : null}
+            <div className="preview-meta">
+              <DetailLine label="編號" value={data.requestNumber} />
+              <DetailLine label="報價單" value={data.relatedQuoteNumber} />
+              <DetailLine label="專案" value={data.projectName} />
+              <DetailLine label="請款日" value={data.issueDate} />
+              <DetailLine label="付款期限" value={dueDate} />
+            </div>
           </div>
         </header>
 
         <section className="preview-party-grid">
           <div className="preview-party">
-            <h3>請款方</h3>
-            <div className="preview-logo-box">
-              {data.issuerLogoImage ? (
-                <img src={data.issuerLogoImage} alt="請款方 Logo" />
-              ) : null}
-            </div>
             <strong>{data.issuerCompany || data.issuerName || '請款方'}</strong>
             <AlignedDetailLine label="聯絡人" value={data.issuerName} />
             <AlignedDetailLine label="公司名稱" value={data.issuerCompany} />
