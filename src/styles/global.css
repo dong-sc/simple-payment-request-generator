@@ -561,9 +561,10 @@ textarea:focus {
 
 .preview-header {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  padding-bottom: 24px;
+  padding-bottom: 18px;
   border-bottom: 2px solid #252525;
 }
 
@@ -587,7 +588,7 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 12px;
+  gap: 8px;
 }
 
 .preview-meta {
@@ -641,8 +642,8 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  width: 180px;
-  height: 72px;
+  width: 160px;
+  height: 56px;
   overflow: hidden;
 }
 
