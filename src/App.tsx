@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActionBar } from './components/ActionBar';
 import { AuthorPromoSection } from './components/AuthorPromoSection';
+import { DongToolsBar } from './components/DongToolsBar';
 import { Header } from './components/Header';
 import { PaymentRequestForm } from './components/PaymentRequestForm';
 import { PaymentRequestPreview } from './components/PaymentRequestPreview';
@@ -74,6 +75,7 @@ export default function App() {
 
   return (
     <>
+      <DongToolsBar />
       <Header />
       <main className="app-shell">
         <section className="workspace" aria-label="請款單製作工作區">
