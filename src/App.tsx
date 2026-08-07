@@ -6,6 +6,7 @@ import { Header } from './components/Header';
 import { PaymentRequestForm } from './components/PaymentRequestForm';
 import { PaymentRequestPreview } from './components/PaymentRequestPreview';
 import { SupportSection } from './components/SupportSection';
+import { VisitorCounter } from './components/VisitorCounter';
 import type { PaymentRequestData } from './types/paymentRequest';
 import { calculateTotals } from './utils/calculation';
 import { exportPaymentRequestExcel } from './utils/exportPaymentRequestExcel';
@@ -97,6 +98,7 @@ export default function App() {
         </section>
         <SupportSection />
         <AuthorPromoSection />
+        <VisitorCounter />
       </main>
     </>
   );
