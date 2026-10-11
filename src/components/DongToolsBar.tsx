@@ -6,12 +6,14 @@ export function DongToolsBar() {
       <div className="dong-tools-bar-inner">
         <a
           className="dong-tools-brand"
+          aria-label="Payment · Dong Tools（前往工具總站）"
           href={hubUrl}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <img src={`${hubUrl}favicon.ico`} alt="" />
-          <span>Dong Tools</span>
+          <img src="/identity/logo-white.svg" alt="" width="32" height="32" />
+          <span>Payment</span>
+          <span className="dong-tools-family">Dong Tools</span>
           <span className="sr-only">（另開新分頁）</span>
         </a>
         <a
