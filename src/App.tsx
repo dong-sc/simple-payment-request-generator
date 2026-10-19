@@ -34,6 +34,10 @@ export default function App() {
   );
 
   useEffect(() => {
+    document.getElementById('root')?.removeAttribute('inert');
+  }, []);
+
+  useEffect(() => {
     savePaymentRequestData(paymentRequestData);
   }, [paymentRequestData]);
 
