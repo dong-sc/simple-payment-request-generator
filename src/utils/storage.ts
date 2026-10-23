@@ -5,6 +5,7 @@ const storageKey = 'simple-payment-request-generator.payment-request-data';
 
 // Do not let mount autosave overwrite a draft that could not be read.
 let preserveUnreadDraft = false;
+let expectedStoredValue: string | null | undefined;
 
 function normalizePaymentRequestData(value: unknown): PaymentRequestData {
   const fallback = createDefaultPaymentRequestData();
@@ -42,6 +43,7 @@ function normalizePaymentRequestData(value: unknown): PaymentRequestData {
 export function loadPaymentRequestData(): PaymentRequestData {
   try {
     const storedValue = localStorage.getItem(storageKey);
+    expectedStoredValue = storedValue;
     if (!storedValue) {
       return createDefaultPaymentRequestData();
     }
@@ -57,7 +59,14 @@ export function savePaymentRequestData(data: PaymentRequestData): boolean {
   if (preserveUnreadDraft) return false;
 
   try {
-    localStorage.setItem(storageKey, JSON.stringify(data));
+    // Best-effort conflict detection; localStorage has no atomic compare-and-swap.
+    if (localStorage.getItem(storageKey) !== expectedStoredValue) {
+      preserveUnreadDraft = true;
+      return false;
+    }
+    const serialized = JSON.stringify(data);
+    localStorage.setItem(storageKey, serialized);
+    expectedStoredValue = serialized;
     return true;
   } catch {
     // Keep the current document usable when browser storage is unavailable or full.
@@ -70,6 +79,7 @@ export function clearPaymentRequestData(): PaymentRequestData {
   preserveUnreadDraft = false;
   try {
     localStorage.removeItem(storageKey);
+    expectedStoredValue = null;
   } catch {
     // Reset the in-memory document even when browser storage is unavailable.
   }
