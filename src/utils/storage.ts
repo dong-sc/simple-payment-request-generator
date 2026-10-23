@@ -3,11 +3,18 @@ import { createDefaultPaymentRequestData } from './defaultPaymentRequest';
 
 const storageKey = 'simple-payment-request-generator.payment-request-data';
 
+// Do not let mount autosave overwrite a draft that could not be read.
+let preserveUnreadDraft = false;
+
 function normalizePaymentRequestData(value: unknown): PaymentRequestData {
   const fallback = createDefaultPaymentRequestData();
 
-  if (!value || typeof value !== 'object') {
-    return fallback;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Invalid stored draft');
+  }
+
+  if ('title' in value && typeof value.title !== 'string') {
+    throw new Error('Invalid stored draft title');
   }
 
   const data = value as Partial<PaymentRequestData>;
@@ -41,11 +48,14 @@ export function loadPaymentRequestData(): PaymentRequestData {
 
     return normalizePaymentRequestData(JSON.parse(storedValue));
   } catch {
+    preserveUnreadDraft = true;
     return createDefaultPaymentRequestData();
   }
 }
 
 export function savePaymentRequestData(data: PaymentRequestData): boolean {
+  if (preserveUnreadDraft) return false;
+
   try {
     localStorage.setItem(storageKey, JSON.stringify(data));
     return true;
@@ -56,6 +66,8 @@ export function savePaymentRequestData(data: PaymentRequestData): boolean {
 }
 
 export function clearPaymentRequestData(): PaymentRequestData {
+  // An explicit reset authorizes replacing an unread draft.
+  preserveUnreadDraft = false;
   try {
     localStorage.removeItem(storageKey);
   } catch {
