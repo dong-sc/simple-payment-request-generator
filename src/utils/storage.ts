@@ -45,11 +45,21 @@ export function loadPaymentRequestData(): PaymentRequestData {
   }
 }
 
-export function savePaymentRequestData(data: PaymentRequestData): void {
-  localStorage.setItem(storageKey, JSON.stringify(data));
+export function savePaymentRequestData(data: PaymentRequestData): boolean {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    return true;
+  } catch {
+    // Keep the current document usable when browser storage is unavailable or full.
+    return false;
+  }
 }
 
 export function clearPaymentRequestData(): PaymentRequestData {
-  localStorage.removeItem(storageKey);
+  try {
+    localStorage.removeItem(storageKey);
+  } catch {
+    // Reset the in-memory document even when browser storage is unavailable.
+  }
   return createDefaultPaymentRequestData();
 }
