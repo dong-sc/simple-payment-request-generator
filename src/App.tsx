@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActionBar } from './components/ActionBar';
 import { AuthorPromoSection } from './components/AuthorPromoSection';
+import { CaseworkBar } from './components/CaseworkBar';
 import { DongToolsBar } from './components/DongToolsBar';
 import { Header } from './components/Header';
 import { PaymentRequestForm } from './components/PaymentRequestForm';
@@ -16,6 +17,7 @@ import {
   savePaymentRequestData,
 } from './utils/storage';
 import { generatePaymentRequestPlainText } from './utils/paymentRequestText';
+import { showCaseworkNext } from './utils/casework';
 
 function getPrintableTitle(title: string): string {
   const normalizedTitle = title.trim() || '請款單';
@@ -76,12 +78,14 @@ export default function App() {
 
     window.addEventListener('afterprint', restoreTitle);
     window.print();
+    showCaseworkNext();
     window.setTimeout(restoreTitle, 1000);
   }
 
   return (
     <>
       <DongToolsBar />
+      <CaseworkBar />
       <Header />
       <main className="app-shell">
         <section className="workspace" aria-label="請款單製作工作區">
@@ -98,6 +102,7 @@ export default function App() {
               onExportExcel={handleExportExcel}
               onPrint={handlePrint}
             />
+            <div data-casework-next />
             <PaymentRequestForm
               data={paymentRequestData}
               onChange={setPaymentRequestData}
